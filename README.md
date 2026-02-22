@@ -61,6 +61,8 @@ A **reactive state engine for TypeScript** with fields, events, objects, arrays,
 * [Comparison Philosophy](#comparison-philosophy)
 * [License](#license)
 
+---
+
 ### Installation
 To install the library, you can use NPM:
 ```bash
@@ -84,6 +86,8 @@ npm install
 npm run build
 ```
 
+---
+
 ### Core Concepts
 **ReactiveTS** Library is built around:
 * **State-first** reactivity;
@@ -98,6 +102,8 @@ state.value.user.name = "Elijah";
 ```
 
 And everything reacts. Simple.
+
+---
 
 ### Reactive Fields
 **ReactiveField** is a reactive primitive (similar to a signal).
@@ -133,6 +139,8 @@ await new Promise(resolve => {}) // If you don't wait before unsubscribe in sing
 unsub();
 ```
 
+---
+
 ### Reactive Events
 **Reactive events** are generally similar in concept to reactive fields, but typically do not contain a current value (such as fields or objects), except when you use history.
 
@@ -166,6 +174,8 @@ event.addListener(async (msg, ctx) => {
 * **batched** listeners;
 * **AbortSignal** cancellation;
 * ``invokeAsync()`` for async events;
+
+---
 
 ### Reactive Objects
 **Reactive objects** are similar to fields, but they can contain any objects. This is useful when you need to track changes, for example, in user data. Reactive objects work through **Proxy**, can also use **Patch Tracking**, and support **change history** (stream).
@@ -202,6 +212,8 @@ state.value.user.name = "Grace";
 }
 ```
 
+---
+
 ### Reactive Arrays
 Reactive arrays work in a similar way to objects, but additional filters and other functions can be applied to them (which we will discuss later).
 
@@ -228,6 +240,8 @@ list.value.splice(0, 1);
     op: "splice", path: [], index: 0, deleteCount: 1, items: [3], removed: [1]
 }
 ```
+
+---
 
 ### Computed
 > Computed functions are needed to automatically track dependencies for calculations and recalculate the final value if one of the dependencies changes. An example of the logic behind such calculations can be found in linked cells in Excel — when you change one of the two, the sum changes.
@@ -261,6 +275,8 @@ await new Promise(resolve => setTimeout(resolve, 100));
 a.value = 5;
 ```
 
+---
+
 ### Selectors
 **Selectors** are needed to respond to changes in only certain object fields without unnecessarily triggering listeners.
 
@@ -284,6 +300,8 @@ user.value = { ...user.value, name: "Grace" };
 await new Promise(resolve => setTimeout(resolve, 100));
 user.value.id = 2;
 ```
+
+---
 
 ### Effects
 Side effects with automatic dependency tracking and cleanup.
@@ -312,6 +330,8 @@ stop();
 count.value = 2;
 ```
 
+---
+
 ### Batching
 Batch multiple mutations into one reactive wave. By defaults all mutations will be batched in first generation.
 
@@ -332,6 +352,8 @@ useBatch(() => {
 ```
 
 > Only one notification wave runs with ``useBatch`` helper.
+
+---
 
 ### History and Transactions
 **ReactiveTS** supports powerful built-in undo/redo system with transactions support.
@@ -380,6 +402,8 @@ history.undo();
 console.log(count.value); // 1
 ```
 
+---
+
 ### Path Subscriptions
 With **ReactiveTS** you can listen to specific paths of objects.
 
@@ -412,6 +436,8 @@ state.value.user.age = 10;          // Calls only second listener
 * exact mode (``item.data.key``);
 * prefix mode (``item``);
 * wildcard mode (``items.*.id``)
+
+---
 
 ### Async and Cancellation
 You can use cancellation tokens and async listeners for your reactive fields.
@@ -446,6 +472,8 @@ evens.addListener(arr => console.log(arr));
 // Push new value
 list.value.push(6);
 ```
+
+---
 
 ### Adapters and Converters
 **Adapters** are **helper functions** for converting reactive events, fields, and other elements into **asynchronous methods**, **Observables**, etc.
@@ -491,6 +519,8 @@ const obs = {
 const { event } = fromObservable(obs);
 ```
 
+---
+
 ### Transaction Middleware and Profiler
 Use middleware function around transactions and collect profiling data.
 
@@ -518,6 +548,8 @@ tx.run(() => {
 console.log(timings[0]?.durationMs);
 ```
 
+---
+
 ### Snapshot API
 Take a snapshot and restore it later.
 
@@ -533,6 +565,8 @@ state.value.count = 10;
 restoreSnapshot(state, snap);
 console.log(state.value.user.name); // Ada
 ```
+
+---
 
 ### Sync API
 Synchronize two reactive fields.
@@ -550,6 +584,8 @@ console.log(right.value); // Hello
 stop();
 ```
 
+---
+
 ### Lens and Atom features
 `ReactiveAtom` is a thin alias over `ReactiveField`; `useLens` focuses into nested state.
 
@@ -566,6 +602,8 @@ console.log(state.value.profile.name); // Grace
 localFlag.value = true;
 ```
 
+---
+
 ### Inspect Dependencies
 Inspect collected dependencies for computed values (useful for debugging).
 
@@ -578,6 +616,8 @@ const sum = useComputed(() => a.value + b.value);
 
 console.log(sum.inspectDependencies().length); // 2
 ```
+
+---
 
 ### Worker Bridge
 Bridge browser `Worker` messages with ReactiveTS events.
@@ -595,6 +635,8 @@ bridge.onMessage.addListener((message) => {
 bridge.post({ type: "PING", payload: { at: Date.now() } });
 ```
 
+---
+
 ### DevTools
 Use a minimal built-in event bus for state/debug records.
 
@@ -607,6 +649,8 @@ devtools.addListener((record) => console.log(record.type, record.payload));
 devtools.emit("state:update", { feature: "counter", next: 10 });
 console.log(devtools.inspect().length); // 1
 ```
+
+---
 
 ### Reactive Watcher
 **Reactive Watcher** in **ReactiveTS** needed to track dependent listeners and further automatically unsubscribe all listeners from specific reactive fields, events, objects, and arrays.
@@ -621,6 +665,8 @@ watcher.own(field.addListener(console.log));
 watcher.dispose(); // removes all listeners
 ```
 
+---
+
 ### Performance Notes and Benchmark
 Now let's talk about **ReactiveTS** **performance and optimization** under the hood, and take a look at the **benchmarks**.
 
@@ -634,6 +680,8 @@ Now let's talk about **ReactiveTS** **performance and optimization** under the h
 1. Prefer **ReactiveField** over deep Proxy objects;
 2. Use **batching**; 
 3. Use **transactions** for grouped updates and history optimisation;
+
+---
 
 #### Benchmarks
 **ReactiveTS** is optimized for typical UI/state scenarios (frequent changes to small fields + batching + effects). To fairly compare performance between versions/configurations, use reproducible microbenchmarks.
@@ -660,6 +708,8 @@ Now let's talk about **ReactiveTS** **performance and optimization** under the h
 | Batch(100 sets) => 1 wave   |  58K (859ms) | coalescing            |
 | Transaction(100 sets)+undo  | 114K (174ms) | grouped history       |
 | Event.invoke (10 listeners) | 864K (231ms) | reactive event invoke |
+
+---
 
 ### Comparison Philosophy
 In this section, we have provided you with the main comparisons with other popular reactive extension libraries.
@@ -695,6 +745,8 @@ In this section, we have provided you with the main comparisons with other popul
 | Transaction         | ✅               | ⚠️ runInAction                  |
 | Devtools ecosystem  | ⚠️ in development | ✅                               |
 | Battle-tested       | ✅               | ✅                               |
+
+---
 
 ### License
 Our library is distributed under the **MIT license**. You can use it however you like. We would appreciate any feedback and suggestions for improvement.
