@@ -1,0 +1,57 @@
+{
+  "name": "@neurosell/reactivets",
+  "version": "0.9.5",
+  "description": "A reactive state engine for TypeScript with fields, events, objects, arrays, computed values, effects, batching, path subscriptions, async support, cancellation, and built-in undo/redo history.",
+  "keywords": [
+    "reactive",
+    "typescript",
+    "ts",
+    "rx",
+    "neurosell",
+    "library",
+    "fields",
+    "objects",
+    "arrays",
+    "observer",
+    "history"
+  ],
+  "homepage": "https://github.com/Neurosell/ReactiveTS#readme",
+  "bugs": {
+    "url": "https://github.com/Neurosell/ReactiveTS/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Neurosell/ReactiveTS.git"
+  },
+  "license": "MIT",
+  "author": "Neurosell",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "browser"
+  ],
+  "browser": "./browser/reactivets.global.js",
+  "sideEffects": false,
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run build",
+    "bench": "node --expose-gc dist/bench.js"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "tsup": "^8.0.0",
+    "typescript": "~5.7.2"
+  }
+}
