@@ -26,6 +26,12 @@ A **reactive state engine for TypeScript** with fields, events, objects, arrays,
 * **Async listeners** with cancellation;
 * **Adapters:** ``toPromise``, ``fromEvent``, ``fromObservable``;
 * **WeakMap proxy cache** for stable nested references;
+* **Transaction middleware and profiler**;
+* **Snapshot API** for capture/restore;
+* **Sync helpers** for one-way and two-way field synchronization;
+* **Lens and Atom** primitives;
+* **Inspect Dependencies** API for computed values;
+* **Worker bridge** and **DevTools event bus**;
 
 ## Table of Contents
 * [Installation](#installation)
@@ -43,6 +49,13 @@ A **reactive state engine for TypeScript** with fields, events, objects, arrays,
 * [Async & Cancellation](#async-and-cancellation)
 * [Views (``useFiltered``, ``useMapped``, ``useSorted``)](#views-filtering-mapping-sorting)
 * [Adapters (``toPromise``, ``fromEvent``, ``fromObservable``)](#adapters-and-converters)
+* [Transaction Middleware & Profiler](#transaction-middleware-and-profiler)
+* [Snapshot API](#snapshot-api)
+* [Sync API](#sync-api)
+* [Lens and Atom](#lens-and-atom)
+* [Inspect Dependencies](#inspect-dependencies)
+* [Worker Bridge](#worker-bridge)
+* [DevTools](#devtools)
 * [Reactive Watcher (auto-unsubscribe)](#reactive-watcher)
 * [Performance Notes](#performance-notes-and-benchmark)
 * [Comparison Philosophy](#comparison-philosophy)
@@ -478,6 +491,123 @@ const obs = {
 const { event } = fromObservable(obs);
 ```
 
+### Transaction Middleware and Profiler
+Use middleware function around transactions and collect profiling data.
+
+```javascript
+import {
+  ReactiveHistoryStack,
+  ReactiveTransactionManager,
+  createTransactionProfiler,
+  ReactiveField
+} from "@neurosell/reactivets";
+
+const history = new ReactiveHistoryStack();
+const tx = new ReactiveTransactionManager(history);
+const timings = [];
+
+tx.use(createTransactionProfiler(timings));
+
+const count = new ReactiveField(0, { history });
+
+tx.run(() => {
+  count.value = 1;
+  count.value = 2;
+}, "update-count");
+
+console.log(timings[0]?.durationMs);
+```
+
+### Snapshot API
+Take a snapshot and restore it later.
+
+```javascript
+import { ReactiveObject, createSnapshot, restoreSnapshot } from "@neurosell/reactivets";
+
+const state = new ReactiveObject({ user: { name: "Ada" }, count: 1 });
+const snap = createSnapshot(state);
+
+state.value.user.name = "Grace";
+state.value.count = 10;
+
+restoreSnapshot(state, snap);
+console.log(state.value.user.name); // Ada
+```
+
+### Sync API
+Synchronize two reactive fields.
+
+```javascript
+import { ReactiveField, useSync } from "@neurosell/reactivets";
+
+const left = new ReactiveField("A");
+const right = new ReactiveField("B");
+
+const stop = useSync(left, right);
+left.value = "Hello";
+console.log(right.value); // Hello
+
+stop();
+```
+
+### Lens and Atom features
+`ReactiveAtom` is a thin alias over `ReactiveField`; `useLens` focuses into nested state.
+
+```javascript
+import { ReactiveObject, useLens, useAtom } from "@neurosell/reactivets";
+
+const state = new ReactiveObject({ profile: { name: "Ada" } });
+const nameLens = useLens(state, ["profile", "name"]);
+const localFlag = useAtom(false);
+
+nameLens.value = "Grace";
+console.log(state.value.profile.name); // Grace
+
+localFlag.value = true;
+```
+
+### Inspect Dependencies
+Inspect collected dependencies for computed values (useful for debugging).
+
+```javascript
+import { ReactiveField, useComputed } from "@neurosell/reactivets";
+
+const a = new ReactiveField(1);
+const b = new ReactiveField(2);
+const sum = useComputed(() => a.value + b.value);
+
+console.log(sum.inspectDependencies().length); // 2
+```
+
+### Worker Bridge
+Bridge browser `Worker` messages with ReactiveTS events.
+
+```javascript
+import { createWorkerBridge } from "@neurosell/reactivets";
+
+const worker = new Worker("./worker.js", { type: "module" });
+const bridge = createWorkerBridge(worker);
+
+bridge.onMessage.addListener((message) => {
+  console.log(message.type, message.payload);
+});
+
+bridge.post({ type: "PING", payload: { at: Date.now() } });
+```
+
+### DevTools
+Use a minimal built-in event bus for state/debug records.
+
+```javascript
+import { ReactiveDevTools } from "@neurosell/reactivets";
+
+const devtools = new ReactiveDevTools();
+devtools.addListener((record) => console.log(record.type, record.payload));
+
+devtools.emit("state:update", { feature: "counter", next: 10 });
+console.log(devtools.inspect().length); // 1
+```
+
 ### Reactive Watcher
 **Reactive Watcher** in **ReactiveTS** needed to track dependent listeners and further automatically unsubscribe all listeners from specific reactive fields, events, objects, and arrays.
 
@@ -563,8 +693,8 @@ In this section, we have provided you with the main comparisons with other popul
 | Dependency tracking | ✅               | ✅                               |
 | History             | ✅               | ❌                               |
 | Transaction         | ✅               | ⚠️ runInAction                  |
-| Devtools ecosystem  | ❌ in development | ✅                               |
-| Battle-tested       | ✅                | ✅                               |
+| Devtools ecosystem  | ⚠️ in development | ✅                               |
+| Battle-tested       | ✅               | ✅                               |
 
 ### License
 Our library is distributed under the **MIT license**. You can use it however you like. We would appreciate any feedback and suggestions for improvement.
