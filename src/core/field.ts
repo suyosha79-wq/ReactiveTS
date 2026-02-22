@@ -57,7 +57,9 @@ export class ReactiveField<ReactiveData> implements IReactiveTypeBase<ReactiveDa
      */
     public get value(): ReactiveData {
         // dependency tracking hook
-        useTracking(() => this.addListener(() => {}));
+        useTracking({
+            subscribe: (onInvalidate) => this.addListener(() => onInvalidate(), { batched: false })
+        });
         return this._value;
     }
 

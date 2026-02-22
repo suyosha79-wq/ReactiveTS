@@ -12,11 +12,9 @@
  */
 // Import Required
 import { ReactiveField, type ReactiveCompare } from "./field";
-import { beginTracking, endTracking } from "./tracking";
+import { beginTracking, endTracking, type Dep } from "./tracking";
 import type { Unsubscribe } from "./disposable";
-
-// For Dependency Unsubscribe
-type DepSub = () => Unsubscribe;
+import { useSchedule } from "./scheduler";
 
 /**
  * Computed Options
@@ -30,99 +28,119 @@ export type ComputedOptions<T> = {
  * Computed Class for Dependency Collection for any Reactive Types
  */
 export class ReactiveComputed<T> extends ReactiveField<T> {
-    // Computed Data
-    private readonly compute: () => T;
-    private deps = new Set<DepSub>();
-    private depUnsubs: Unsubscribe[] = [];
-    private dirty = true;
+    // Compute and Equals Parameters
+    private readonly computeFn: () => T;
     private readonly equalsLocal: ReactiveCompare<T>;
     private readonly lazy: boolean;
 
-    /**
-     * Create Compute
-     * @param compute {Function} Compute Method
-     * @param options {ComputedOptions} Compute Options
-     */
-    constructor(compute: () => T, options: ComputedOptions<T> = {}) {
-        // Will be replaced at first computeNow()
+    // Depedency
+    private depUnsubs: Unsubscribe[] = [];
+    private deps: Dep[] = [];
+
+    private dirty = true;
+    private scheduled = false;
+    private disposed = false;
+    private computing = false;
+
+    constructor(fn: () => T, options: ComputedOptions<T> = {}) {
+        // initial value will be computed
         super(undefined as unknown as T, { equals: options.equals ?? Object.is });
-        this.compute = compute;
+
+        this.computeFn = fn;
         this.equalsLocal = options.equals ?? Object.is;
         this.lazy = options.lazy ?? false;
 
         if (!this.lazy) {
-            this.computeNow();
+            this.recomputeNow();
         }
     }
 
-    /**
-     * Get Current Value
-     */
-    public override get value(): T {
-        if (this.dirty) this.computeNow();
+    override get value(): T {
+        if (this.disposed) return super.value;
+        if (this.dirty) this.recomputeNow();
         return super.value;
     }
 
     /**
-     * Dispose
+     * Stop listening to dependencies (useful to prevent leaks in long-lived graphs).
      */
-    public dispose(): void {
-        for (const u of this.depUnsubs) {
-            try { u(); } catch {}
-        }
-        this.depUnsubs = [];
-        this.deps.clear();
+    dispose(): void {
+        if (this.disposed) return;
+        this.disposed = true;
+        this.unsubscribeDeps();
+        // optionally you can remove listeners from this computed itself:
+        // this.removeAllListeners();
     }
 
-    /**
-     * Compute Now
-     * @private
-     */
-    private computeNow(): void {
-        // unsubscribe previous deps
+    private unsubscribeDeps(): void {
         for (const u of this.depUnsubs) {
             try { u(); } catch {}
         }
         this.depUnsubs = [];
-        this.deps.clear();
+        this.deps = [];
+    }
 
+    private invalidate = (): void => {
+        if (this.disposed) return;
+
+        // mark dirty
+        this.dirty = true;
+
+        // lazy computed won't auto recompute
+        if (this.lazy) return;
+
+        // avoid scheduling multiple times
+        if (this.scheduled) return;
+        this.scheduled = true;
+
+        useSchedule(() => {
+            this.scheduled = false;
+            if (this.disposed) return;
+            if (this.dirty) this.recomputeNow();
+        });
+    };
+
+    private recomputeNow(): void {
+        if (this.disposed) return;
+
+        // Prevent re-entrant recompute loops (can happen with weird circular graphs)
+        if (this.computing) return;
+        this.computing = true;
+
+        // Tear down old deps first (so dependency set can change freely)
+        this.unsubscribeDeps();
+
+        const nextDeps: Dep[] = [];
         const tracker = {
-            addDependency: (subFactory: DepSub) => {
-                this.deps.add(subFactory);
+            addDependency: (dep: Dep) => {
+                // dedupe deps by identity (dep object should be stable per source read)
+                // if you create new dep objects each read, consider interning them in source.
+                if (!nextDeps.includes(dep)) nextDeps.push(dep);
             }
         };
 
         beginTracking(tracker);
-        let next!: T;
+
+        let nextValue!: T;
         try {
-            next = this.compute();
+            nextValue = this.computeFn();
         } finally {
             endTracking();
         }
 
-        // subscribe to deps with recompute invalidation
-        for (const dep of this.deps) {
-            const unsub = dep();
-            this.depUnsubs.push(unsub);
-        }
+        // Subscribe to new deps using invalidate callback
+        this.deps = nextDeps;
+        this.depUnsubs = nextDeps.map((d) => d.subscribe(this.invalidate));
 
         this.dirty = false;
 
-        // set only if changed
-        const prev = super.value;
-        if (!this.equalsLocal(prev, next)) {
-            super.set(next);
-        } else {
-            // keep stable value
-            // still ensure internal _value is correct (it is)
+        // Only publish if changed
+        const prevValue = super.value;
+        if (!this.equalsLocal(prevValue, nextValue)) {
+            super.set(nextValue);
         }
-    }
 
-    /**
-     * Helper to create dependency subscriptions from any ReactiveField/Event.
-     */
-    static trackField<T>(field: ReactiveField<T>, onChange: () => void): DepSub {
-        return () => field.addListener(() => onChange());
+        this.computing = false;
     }
 }
 

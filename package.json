@@ -1,6 +1,6 @@
 {
   "name": "@neurosell/reactivets",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "A reactive state engine for TypeScript with fields, events, objects, arrays, computed values, effects, batching, path subscriptions, async support, cancellation, and built-in undo/redo history.",
   "keywords": [
     "reactive",

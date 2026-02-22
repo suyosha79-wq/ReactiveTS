@@ -184,11 +184,11 @@ async function main() {
         }, { warmup: 200, flushMicrotasks: false });
     }
 
-    // 13) ReactiveEvent emit (sync listeners)
+    // 13) ReactiveEvent invoke (sync listeners)
     {
         const ev = new ReactiveEvent<number>();
         for (let i = 0; i < 10; i++) ev.addListener(() => {});
-        await runCase("Event.emit (10 listeners)", iters, () => { ev.invoke(1); }, { flushMicrotasks: true });
+        await runCase("Event.invoke (10 listeners)", iters, () => { ev.invoke(1); }, { flushMicrotasks: true });
     }
 
     console.log(`\nDone.`);
