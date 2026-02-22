@@ -72,6 +72,13 @@ export class ReactiveComputed<T> extends ReactiveField<T> {
         // this.removeAllListeners();
     }
 
+    /**
+     * Inspect current computed dependencies snapshot.
+     */
+    public inspectDependencies(): readonly Dep[] {
+        return this.deps;
+    }
+
     private unsubscribeDeps(): void {
         for (const u of this.depUnsubs) {
             try { u(); } catch {}
