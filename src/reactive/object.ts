@@ -63,7 +63,9 @@ export class ReactiveObject<ReactiveData extends object> {
      */
     public get value(): ReactiveData {
         // dependency tracking for computed/effect:
-        useTracking(() => this.version.addListener(() => {}));
+        useTracking({
+            subscribe: (onInvalidate) => this.version.addListener(() => onInvalidate(), {batched: false })
+        });
         // read version to participate in tracking when using select/computed
         void this.version.value;
         return this.proxy;

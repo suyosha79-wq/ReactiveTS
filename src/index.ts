@@ -47,3 +47,27 @@ export { ReactiveObject } from "./reactive/object";
 
 export type { ReactiveArrayOptions } from "./reactive/array";
 export { ReactiveArray } from "./reactive/array";
+
+// Transactions: middleware, profiler
+export type { TransactionContext, TransactionMiddleware, TransactionProfile } from "./core/transaction";
+export { ReactiveTransactionManager, createTransactionProfiler } from "./core/transaction";
+
+// Snapshot API
+export type { Snapshot, SnapshotSource } from "./core/snapshot";
+export { createSnapshot, restoreSnapshot } from "./core/snapshot";
+
+// Sync helpers
+export { useSync, useOneWaySync } from "./core/sync";
+
+// Lens & Atom
+export { ReactiveAtom, useAtom } from "./core/atom";
+export type { ReactiveLensSource } from "./core/lens";
+export { useLens } from "./core/lens";
+
+// Worker bridge
+export type { WorkerBridge, WorkerMessage } from "./core/worker";
+export { createWorkerBridge } from "./core/worker";
+
+// DevTools
+export type { DevToolsRecord } from "./core/devtools";
+export { ReactiveDevTools } from "./core/devtools";

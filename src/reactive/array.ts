@@ -61,7 +61,9 @@ export class ReactiveArray<T> {
      * Get Current Reactive Array Value
      */
     public get value(): T[] {
-        useTracking(() => this.version.addListener(() => {}));
+        useTracking({
+            subscribe: (onInvalidate) => this.version.addListener(() => onInvalidate(), { batched: false })
+        });
         void this.version.value;
         return this.proxy;
     }

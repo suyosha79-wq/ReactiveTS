@@ -11,11 +11,9 @@
  * @github          https://github.com/Neurosell/ReactiveTS/
  */
 // Import Required
-import { beginTracking, endTracking } from "./tracking";
-import type { Unsubscribe } from "./disposable";
-
-// For Dependency Checking
-type DepSub = () => Unsubscribe;
+import {beginTracking, Dep, endTracking} from "./tracking";
+import type {Unsubscribe} from "./disposable";
+import {useSchedule} from "./scheduler";
 
 // Effect Cleanup Functions
 export type ReactiveEffectCleanup = void | (() => void);
@@ -25,7 +23,18 @@ export type ReactiveEffectFn = () => ReactiveEffectCleanup;
  * Effect Options
  */
 export type ReactiveEffectOptions = {
+    defer?: boolean;
     lazy?: boolean;
+    flush?: "microtask" | "sync";
+    flushOnStop?: boolean;
+};
+
+/**
+ * Reactive Effect Handle
+ */
+export type ReactiveEffectHandle = Unsubscribe & {
+    run(): void;
+    flush(): void;
 };
 
 /**
@@ -35,59 +44,110 @@ export type ReactiveEffectOptions = {
  * @return {Unsubscribe} Unsubscribe Method
  */
 export function useEffect(fn: ReactiveEffectFn, options: ReactiveEffectOptions = {}): Unsubscribe {
-    // Internal Parameters
+    const flushMode = options.flush ?? "microtask";
+
     let cleanup: (() => void) | undefined;
     let depUnsubs: Unsubscribe[] = [];
-    let deps = new Set<DepSub>();
-    let stopped = false;
 
-    // Run Effect
+    let stopped = false;
+    let scheduled = false;
+    let running = false;
+
+    const unsubscribeDeps = () => {
+        for (const u of depUnsubs) {
+            try { u(); } catch {}
+        }
+        depUnsubs = [];
+    };
+
     const run = () => {
         if (stopped) return;
 
-        // cleanup
-        if (cleanup) {
-            try { cleanup(); } catch {}
-            cleanup = undefined;
-        }
+        // guard against re-entrancy loops
+        if (running) return;
+        running = true;
 
-        // unsub deps
-        for (const u of depUnsubs) {
-            try { u(); } catch {}
-        }
-        depUnsubs = [];
-        deps.clear();
-
-        const tracker = {
-            addDependency: (subFactory: DepSub) => deps.add(subFactory)
-        };
-
-        beginTracking(tracker);
         try {
-            const c = fn();
-            if (typeof c === "function") cleanup = c;
+            // cleanup previous
+            if (cleanup) {
+                try { cleanup(); } catch {}
+                cleanup = undefined;
+            }
+
+            // rebuild deps
+            unsubscribeDeps();
+
+            const nextDeps: Dep[] = [];
+            const tracker = {
+                addDependency: (dep: Dep) => {
+                    if (!nextDeps.includes(dep)) nextDeps.push(dep);
+                }
+            };
+
+            beginTracking(tracker);
+            try {
+                const c = fn();
+                if (typeof c === "function") cleanup = c;
+            } finally {
+                endTracking();
+            }
+
+            // subscribe deps
+            depUnsubs = nextDeps.map((d) => d.subscribe(invalidate));
         } finally {
-            endTracking();
-        }
-
-        for (const dep of deps) {
-            depUnsubs.push(dep());
+            running = false;
         }
     };
 
-    // If Lazy Option Enabled
-    if (!options.lazy) run();
+    const invalidate = () => {
+        if (stopped) return;
+        if (options.lazy) return;
 
-    return () => {
-        stopped = true;
-        if (cleanup) {
-            try { cleanup(); } catch {}
-            cleanup = undefined;
+        if (flushMode === "sync") {
+            run();
+            return;
         }
-        for (const u of depUnsubs) {
-            try { u(); } catch {}
-        }
-        depUnsubs = [];
-        deps.clear();
+
+        // microtask mode (default): coalesce many invalidations to one run
+        if (scheduled) return;
+        scheduled = true;
+        useSchedule(() => {
+            scheduled = false;
+            run();
+        });
     };
+
+    const flush = () => {
+        if (stopped) return;
+        if (!scheduled) return;
+        scheduled = false;
+        run();
+    };
+
+    // initial run
+    if (!options.lazy) {
+        if (options.defer) useSchedule(run);
+        else run();
+    }
+
+    return Object.assign(
+        () => {
+            if (stopped) return;
+
+            if (options.flushOnStop) {
+                // если есть pending run — догоним его перед остановкой
+                flush();
+            }
+
+            stopped = true;
+
+            if (cleanup) {
+                try { cleanup(); } catch {}
+                cleanup = undefined;
+            }
+
+            unsubscribeDeps();
+        },
+        { run, flush }
+    );
 }

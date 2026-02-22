@@ -14,15 +14,11 @@
 import { Unsubscribe } from "./disposable";
 
 /**
- * Tracking Interface
+ * Dependency Type
  */
-export interface ITrackable {
-    /**
-     * Track Subscribe
-     * @param subscribe {Unsubscribe} Unsubscribe Method
-     */
-    __track(subscribe: () => Unsubscribe): void;
-}
+export type Dep = {
+    subscribe(onInvalidate: () => void): Unsubscribe;
+};
 
 /**
  * Dependency Tracking Type
@@ -30,9 +26,9 @@ export interface ITrackable {
 type Tracker = {
     /**
      * Add Dependency
-     * @param subscribeFactory {Unsubscribe} Subscribe Factory
+     * @param dep {Dep} Dependency Track
      */
-    addDependency(subscribeFactory: () => Unsubscribe): void;
+    addDependency(dep: Dep): void;
 };
 
 // Define Tracking Stack
@@ -55,10 +51,10 @@ export function endTracking(): void {
 
 /**
  * Use Tracking for Computed
- * @param subscribeFactory {Unsubscribe} Subscription Factory
+ * @param dep {Dep} Dependency
  */
-export function useTracking(subscribeFactory: () => Unsubscribe): void {
+export function useTracking(dep: Dep): void {
     const t = stack[stack.length - 1];
     if (!t) return;
-    t.addDependency(subscribeFactory);
+    t.addDependency(dep);
 }
