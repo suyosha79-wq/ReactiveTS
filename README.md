@@ -1,9 +1,11 @@
 # ReactiveTS
+![ReactiveTS - Simple and Powerful Reactive State Engine](img/cover.png)
+
 A **reactive state engine for TypeScript** with fields, events, objects, arrays, computed values, effects, batching, path subscriptions, async support, cancellation, and built-in undo/redo history.
 
 ---
 
-[Get Started]() | [Other Libraries](https://github.com/neurosell) | [Website](https://neurosell.top/)
+[Get Started](#installation) | [Other Libraries](https://github.com/neurosell) | [Telegram](https://t.me/devsdaddy) | [Contacts](https://neurosell.top/)
 
 ---
 
@@ -566,3 +568,7 @@ In this section, we have provided you with the main comparisons with other popul
 
 ### License
 Our library is distributed under the **MIT license**. You can use it however you like. We would appreciate any feedback and suggestions for improvement.
+
+---
+
+[Get Started](#installation) | [Other Libraries](https://github.com/neurosell) | [Telegram](https://t.me/devsdaddy) | [Contacts](https://neurosell.top/)
